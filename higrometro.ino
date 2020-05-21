@@ -26,108 +26,47 @@ DHT dht(DHTPIN, DHTTYPE);
 SSD1306Wire display(0x3c, D3, D4);
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   
   Serial.print(F("DHT22 Teste !!!!!!"));
   dht.begin();
   pinMode(LED_BUILTIN, OUTPUT);
-//  digitalWrite(LED_BUILTIN, HIGH);
-//    delay(500);
-//    digitalWrite(LED_BUILTIN, LOW);
-//    delay(500);
-//  for (int i=0; i <= 1; i++) {
-//    digitalWrite(LED_BUILTIN, HIGH);
-//    delay(500);
-//    digitalWrite(LED_BUILTIN, LOW);
-//    delay(500);
-//  }
   delay(2000);
   display.init();
-  
-//  if (!display.init()) {
-//    showError();
-//  }
   display.clear();
-//  display.flipScreenVertically();
-  display.setFont(Roboto_Medium_24);
-  
+//  display.flipScreenVertically();  
 }
 
-void showError() {
-  for (int i=0; i < 20; i++) {
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(100);
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(50);
+// params: float value of sensor, char grandeza 't' or 'h'
+void display_value(float value, char grandeza) {
+  display.clear();
+  char value_str[10];
+  gcvt(value, 5, value_str);
+  if (grandeza == 't') {
+    strcat(value_str, "°C");  
+  } else if (grandeza == 'h') {
+    strcat(value_str, "%");
   }
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.setFont(Creepster_Caps_Regular_54);
+  display.drawString(0, 0,value_str);
+  display.display();
 }
 
 void loop() {
-  delay(2000);
-  //char buffer[sizeof(unsigned int)*16+1];
-//  display.init();
-  //display.clear();
-  // put your main code here, to run repeatedly:
-  //display.setTextAlignment(TEXT_ALIGN_CENTER);
-  //display.setFont(Roboto_Medium_24);
-  //display.drawString(60, 5,"Temp: 25*");
-//  display.setFont(Roboto_Medium_24);
-//  display.drawString(10, 26,"Humi: 55%");
-  //display.setFont(Roboto_Medium_24);
-  //utoa(display.getWidth(), buffer, 10);
-  //display.drawString(20, 30, buffer);
-
-  //display.display()
-
   float h = dht.readHumidity();
-  float c = dht.readTemperature();
-  char temp_str[5], humi_str[5];
-  // convert o float pra string, 
-  // segundo parametro é o numero de char que a string terá
-  gcvt(c, 4, temp_str);
-  gcvt(h, 4, humi_str);
-  
-  if (isnan(h) || isnan(c)) {
-    Serial.println(F("Erro na medida do sensor..."));
-  } 
-  float hic = dht.computeHeatIndex(c, h, false);
-  Serial.print(F("Humidity: "));
-  Serial.print(h);
-  Serial.print(F("%  Temperature: "));
-  Serial.print(c);
-  Serial.print(F("°C "));
-  Serial.print(F("\n"));
-  // °
-  char res_temp[] = "Temp: ";
-  char res_humi[] = "Humi: ";
-  strncat(res_temp, temp_str, 6);
-  strncat(res_temp, "*", 1);
-//  strncat(res_humi, humi_str, 6);
-//  strncat(res_humi, "%", 1);
-//  sprintf(temp_reading, "Temp: %s°", *temp_str);
-//  sprintf(humi_reading, "Humi: %s %", *humi_str);
+  float t = dht.readTemperature();
 
-  display.clear();
-  display.setTextAlignment(TEXT_ALIGN_CENTER);
-  display.setFont(Roboto_Mono_Light_16);
-  display.drawString(60,5,res_temp);
-  display.setFont(Roboto_Mono_Light_16);
-  // display.drawString(60,30,res_humi);
-  display.display();
-  /* medicoes do DHT22 */
-//  float h = dht.readHumidity();
-//  float c = dht.readTemperature();
-//
-//  if (isnan(h) || isnan(c)) {
-//    Serial.println(F("Erro na medida do sensor..."));
-//  }
-//  float hic = dht.computeHeatIndex(c, h, false);
+  display_value(t, 't');
+  delay(2500);
+  display_value(h, 'h');
+  delay(2500);
+//  Useful while debugging
 //  Serial.print(F("Humidity: "));
 //  Serial.print(h);
 //  Serial.print(F("%  Temperature: "));
-//  Serial.print(c);
+//  Serial.print(t);
 //  Serial.print(F("°C "));
 //  Serial.print(F("\n"));
-  
-//  delay(2000);
+
 }
